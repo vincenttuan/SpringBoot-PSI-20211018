@@ -18,7 +18,7 @@
 			  <div class="form-group">
 			  	<label for="name">部門名稱：</label>
 			  	<select class="form-control select2"
-			  			th:onchange="'window.location.href = \'' + @{./} + '?department_id=\' + this.value ' "
+			  			onchange="window.location.href='./?department_id=' + this.value;"
 			  			th:field="*{department.id}">
 			  		<option th:each="d:${departments}" th:value="${d.id}" th:text="${d.name}"></option>
 			  	</select>
