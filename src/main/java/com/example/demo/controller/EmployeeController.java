@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -40,6 +41,38 @@ public class EmployeeController {
 		return "employee";
 	}
 	
+	@RequestMapping("/create")
+	public String create(Employee employee) {
+		Department department = departmentRepository.findById(employee.getDepartment().getId()).get();
+		// 建立 employee 與 department 的關聯
+		employee.setDepartment(department);
+		employeeRepository.save(employee);
+		return "redirect:/employee/?department_id=" + department.getId();
+	}
 	
+	@RequestMapping("/edit/{id}")
+	public String edit(Model model, @PathVariable("id") Long id) {
+		Employee employee = employeeRepository.findById(id).get();
+		model.addAttribute("employee", employee);
+		model.addAttribute("departments", departmentRepository.findAll());
+		return "employee-update";
+	}
+	
+	@RequestMapping("/update/{id}")
+	public String update(@PathVariable("id") Long id, Employee employee) {
+		Department department = departmentRepository.findById(employee.getDepartment().getId()).get();
+		// 建立 employee 與 department 的關聯
+		employee.setDepartment(department);
+		employeeRepository.save(employee);
+		return "redirect:/employee/?department_id=" + department.getId();
+	}
+	
+	@RequestMapping("/delete/{id}")
+	public String delete(@PathVariable("id") Long id) {
+		Employee employee = employeeRepository.findById(id).get();
+		Long department_id = employee.getDepartment().getId();
+		employeeRepository.deleteById(id);
+		return "redirect:/employee/?department_id=" + department_id;
+	}
 	
 }
