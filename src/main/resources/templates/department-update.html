@@ -12,7 +12,7 @@
 		
 		<!-- Content -->
 		<h1>部門資料修改</h1>
-		<form th:action="@{/department/update}"
+		<form th:action="@{/department/update/{id}(id=${department.id})}"
 			  th:object="${department}"
 			  method="post">
 			  <div class="form-group">

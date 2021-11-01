@@ -40,6 +40,17 @@ public class DepartmentController {
 		return "department-update";
 	}
 	
+	@RequestMapping("/update/{id}")
+	public String update(@PathVariable("id") Long id, Department department) {
+		department.setId(id);
+		departmentRepository.save(department);
+		return "redirect:/department/";
+	}
 	
+	@RequestMapping("/delete/{id}")
+	public String delete(@PathVariable("id") Long id) {
+		departmentRepository.deleteById(id);
+		return "redirect:/department/";
+	}
 	
 }
