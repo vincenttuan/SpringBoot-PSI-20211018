@@ -23,22 +23,30 @@ public class Order {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column
 	@Temporal(TemporalType.DATE)
 	private Date date;
-	
+
 	@JoinColumn(name = "customer_id") // 外鍵
 	@ManyToOne
 	private Customer customer;
-	
+
 	@JoinColumn(name = "employee_id") // 外鍵
 	@ManyToOne
 	private Employee employee;
-	
+
 	@OneToMany(mappedBy = "order")
 	@OrderBy("id ASC")
 	private Set<OrderItem> orderItems = new LinkedHashSet<>();
+
+	// 計算訂單總價
+	public Integer getTotal() {
+		if (orderItems.size() == 0) {
+			return 0;
+		}
+		return orderItems.stream().mapToInt(oi -> oi.getAmount() * oi.getProduct().getPrice()).sum();
+	}
 
 	public Long getId() {
 		return id;
@@ -79,6 +87,5 @@ public class Order {
 	public void setOrderItems(Set<OrderItem> orderItems) {
 		this.orderItems = orderItems;
 	}
-	
-	
+
 }
