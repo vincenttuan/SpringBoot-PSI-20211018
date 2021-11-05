@@ -22,6 +22,7 @@
 			<div class="form-group">
 				<label for="cus">客戶：</label>
 				<select class="form-control select2"
+						th:onchange="'window.location.href = \'' + @{./} + '?customer_id=\' + this.value ' "
 						th:field="*{customer.id}">
 					<option 
 						th:selected="(${c.id} eq (*{customer.id}?:0))"

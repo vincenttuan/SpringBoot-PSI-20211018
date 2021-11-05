@@ -3,16 +3,20 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Order;
+import com.example.demo.entity.OrderItem;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.OrderItemRepository;
 import com.example.demo.repository.OrderRepository;
+import com.example.demo.repository.ProductRepository;
+import com.example.demo.validator.InventoryValidator;
 
 @Controller
 @RequestMapping("/order")
@@ -30,6 +34,11 @@ public class OrderController {
 	@Autowired
 	private EmployeeRepository employeeRepository;
 	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
+	private InventoryValidator inventoryValidator;
 	
 	@RequestMapping("/")
 	public String index(Model model, 
@@ -77,5 +86,53 @@ public class OrderController {
 		orderRepository.deleteById(oid);
 		return "redirect:/order/";
 	}
+	
+	//----------------------------------------------------------------------
+	
+	@RequestMapping("/{oid}/view/item")
+	public String viewItem(Model model, @PathVariable("oid") Long oid) {
+		Order order = orderRepository.findById(oid).get();
+		OrderItem orderItem = new OrderItem();
+		model.addAttribute("order", order);
+		model.addAttribute("orderItem", orderItem);
+		model.addAttribute("products", productRepository.findAll());
+		return "orderItem";
+	}
+	
+	@RequestMapping("/{oid}/add/item")
+	// Model model, BindingResult result 注意宣告的參數順序
+	public String addItem(OrderItem orderItem, Model model, BindingResult result, @PathVariable("oid") Long oid) {
+		// 驗證資料
+		inventoryValidator.validate(orderItem, result);
+		if(result.hasErrors()) {
+			Order order = orderRepository.findById(oid).get();
+			model.addAttribute("order", order);
+			model.addAttribute("orderItem", orderItem);
+			model.addAttribute("products", productRepository.findAll());
+			return "orderItem";
+		}
+		
+		Order order = orderRepository.findById(oid).get();
+		orderItem.setOrder(order);
+		orderItemRepository.save(orderItem);
+		return "redirect:/order/" + oid + "/view/item";
+	}
+	
+	@RequestMapping("/{oid}/edit/item/{iid}")
+	public String editItem(Model model, @PathVariable("oid") Long oid, @PathVariable("iid") Long iid) {
+		Order order = orderRepository.findById(oid).get();
+		OrderItem orderItem = orderItemRepository.findById(iid).get();
+		model.addAttribute("order", order);
+		model.addAttribute("orderItem", orderItem);
+		model.addAttribute("products", productRepository.findAll());
+		return "orderitem";
+	}
+	
+	@RequestMapping("/{oid}/delete/item/{iid}")
+	public String deleteItem(@PathVariable("oid") Long oid, @PathVariable("iid") Long iid) {
+		orderItemRepository.deleteById(iid);
+		return "redirect:/order/" + oid + "/view/item";
+	}
+	
 	
 }
