@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.entity.Customer;
 import com.example.demo.entity.Order;
 import com.example.demo.repository.CustomerRepository;
 import com.example.demo.repository.EmployeeRepository;
@@ -36,10 +37,16 @@ public class OrderController {
 		
 		Order order = new Order();
 		
+		if(customer_id == null) {
+			model.addAttribute("orders", orderRepository.findAll());
+		} else {
+			Customer customer = customerRepository.findById(customer_id).get();
+			order.setCustomer(customer);
+			model.addAttribute("orders", orderRepository.findByCustomer(customer));
+		}
 		model.addAttribute("order", order);
 		model.addAttribute("customers", customerRepository.findAll());
 		model.addAttribute("employees", employeeRepository.findAll());
-		model.addAttribute("orders", orderRepository.findAll());
 		return "order";
 	}
 	
